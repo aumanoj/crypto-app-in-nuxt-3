@@ -1,0 +1,85 @@
+parameters:
+- name: 'environment'
+  type: string
+- name: 'azureServiceConnectionName'
+  type: string
+  
+jobs:
+- job: Build
+  workspace:
+    clean: all
+  steps:
+  - checkout: self
+    clean: true
+    displayName: Checkout Code
+
+  - task: NodeTool@0
+    displayName: Install Node.js
+    inputs:
+      versionSpec: '18.x' # Specify the Node.js version to use
+
+  - script: |
+      npm install
+    displayName: 'Install Dependencies'
+
+  - script: |
+      npm install ipx
+    displayName: 'Install ipx'
+
+  # New troubleshooting step
+  - script: |
+      echo "=== Environment Variables ==="
+      echo "NUXT_PUBLIC_SITE_URL: $NUXT_ENV_SITE_URL"
+      echo "PUBLIC_API_BASE_URL: $ENV_PUBLIC_API_BASE_URL"
+      echo "appServiceName: $(appServiceName)"
+    displayName: 'Troubleshooting - Echo Variables'
+
+  - script: |
+      npm run build && npm run generate
+    displayName: 'Build and Generate Application'
+    env:
+      NODE_ENVIRONMENT: $(NODE_ENVIRONMENT)
+      NUXT_PUBLIC_SITE_URL: $(NUXT_ENV_SITE_URL)
+      PUBLIC_API_BASE_URL: $(ENV_PUBLIC_API_BASE_URL)
+      PUBLIC_AUTHORITY: $(ENV_PUBLIC_AUTHORITY)
+      PUBLIC_CLIENT_ID: $(ENV_PUBLIC_CLIENT_ID)
+      PUBLIC_POSTLOGOUT_REDIRECT_URI: $(ENV_PUBLIC_POSTLOGOUT_REDIRECT_URI)
+      PUBLIC_REDIRECT_URI: $(ENV_PUBLIC_REDIRECT_URI)
+      PUBLIC_RESET_PASSWORD_URI: $(ENV_PUBLIC_RESET_PASSWORD_URI)
+      PUBLIC_API_SCOPE: $(ENV_PUBLIC_API_SCOPE)
+      PUBLIC_KNOWN_AUTHORITY: $(ENV_PUBLIC_KNOWN_AUTHORITY)
+
+  - task: ArchiveFiles@2
+    displayName: 'Archive Files'
+    inputs:
+      rootFolderOrFile: '$(Build.SourcesDirectory)/.output' # Adjust based on your output directory
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-${{ parameters.environment }}.zip'
+      replaceExistingArchive: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifacts
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-${{ parameters.environment }}.zip'
+      ArtifactName: 'drop'
+
+- deployment: Deploy
+  displayName: 'Deploy to Environment'
+  dependsOn: Build
+  condition: succeeded()
+  environment: ${{ parameters.environment }}  
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - download: current
+            artifact: drop
+
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Deploy to Azure Web App'
+            inputs:
+              azureSubscription: ${{ parameters.azureServiceConnectionName }}
+              appType: 'webApp'
+              webAppName : $(appServiceName)
+              package: '$(Pipeline.Workspace)/drop/$(Build.BuildId)-${{ parameters.environment }}.zip'

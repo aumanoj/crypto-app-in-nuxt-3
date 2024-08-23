@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Nonito", system-ui, sans-serif;
+  }
+}
+
+:root {
+  --primary-50: #fff8eb;
+  --primary-100: #fde9c8;
+  --primary-200: #fbd28c;
+  --primary-300: #f9b450;
+  --primary-400: #f7931a;
+  --primary-500: #f1760f;
+  --primary-600: #d65309;
+  --primary-700: #b1360c;
+  --primary-800: #902b10;
+  --primary-900: #762311;
+  --primary-950: #440f04;
+}
+
+.dark\:text-white:where(.dark, .dark *) {
+  --tw-text-opacity: 0.9 !important;
+}

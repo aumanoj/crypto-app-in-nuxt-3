@@ -1,0 +1,39 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - releases/*
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+      - releases/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: DeployToTest
+    displayName: 'Deploy to Test Environment'
+    dependsOn: []
+    variables:
+      - group: UI-Variables-Test-Env
+    jobs:
+      - template: cicd/build-and-deploy-job.yml
+        parameters:
+          environment: 'Test' # This is Azure Devops environment name
+          azureServiceConnectionName: tax-app-dev-connection
+  
+  - stage: DeployToPROD
+    displayName: 'Deploy to Prod Environment'
+    dependsOn: []
+    variables:
+      - group: UI-Variables-Prod-Env
+    jobs:
+      - template: cicd/build-and-deploy-job.yml
+        parameters:
+          environment: 'Prod' # This is Azure Devops environment name
+          azureServiceConnectionName: tax-app-prod-connection

@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.min-w-100 {
+  min-width: 30rem;
+}
+
+.max-w-100 {
+  max-width: 30rem;
+}
+
+form {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+body {
+  @apply bg-body;
+}
+
+.logo {
+  @apply text-2xl font-medium;
+}
+
+a.helpLink {
+  @apply hidden;
+}
+
+.entry {
+  @apply my-8;
+}
+
+.entry-item,
+ul > li > div {
+  @apply flex flex-col mt-2;
+}
+
+.entry-item label,
+ul > li > div > label {
+  @apply text-sm font-normal capitalize;
+}
+
+.entry-item input,
+ul > li > div > input,
+ul > li > div > select {
+  @apply mt-1 min-h-12 w-full rounded bg-[#eff2f9] p-2 focus:rounded-b-none focus:border-b-2 focus:border-primary-400 focus:outline-none;
+}
+
+.entry-item .password-label {
+  @apply flex items-center justify-between mt-5;
+}
+
+.entry-item .password-label a {
+  @apply text-sm font-normal capitalize;
+}
+
+.heading,
+.intro {
+  @apply text-center mb-2;
+}
+
+.buttons {
+  @apply flex flex-col mt-5;
+}
+
+.buttons button {
+  @apply w-full p-3 bg-primary-400 rounded-sm text-white font-normal mb-2;
+}
+
+.divider {
+  @apply text-center mb-2;
+}
+
+.create {
+  @apply text-center text-sm;
+}
+
+.create a {
+  @apply text-primary-400 font-normal ms-1;
+}
+
+.verificationErrorText,
+.error {
+  @apply text-red-500;
+}
+
+#emailVerificationControl_but_change_claims {
+  display: none !important;
+}
+
+input:disabled,
+select:disabled,
+button:disabled {
+  cursor: not-allowed;
+}
