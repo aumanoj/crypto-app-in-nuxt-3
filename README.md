@@ -1,0 +1,1 @@
+# crypto-app-in-nuxt-3
